@@ -1,0 +1,58 @@
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+group = 'net.foragerr.trials'
+version = '1.0'
+
+repositories{
+	mavenLocal()
+}
+
+configurations{
+	optional
+	compile.extendsFrom optional
+}
+
+
+dependencies {
+	optional 'net.foragerr.trials:ProjC:1.0'
+	compile 'net.foragerr.trials:ProjD:1.0'
+}
+
+
+publishing {
+  publications {
+    maven( MavenPublication ) {
+      from components.java
+
+      pom.withXml {
+        asNode().dependencies.dependency.findAll { xmlDep ->
+          // mark optional dependencies
+          if ( project.configurations.optional.allDependencies.findAll { dep ->
+            xmlDep.groupId.text() == dep.group && xmlDep.artifactId.text() == dep.name
+          } ) {
+            def xmlOptional = xmlDep.optional[ 0 ];
+            if ( !xmlOptional ) {
+              xmlOptional = xmlDep.appendNode( 'optional' )
+            }
+            xmlOptional.value = 'true';
+          }
+
+          // fix maven-publish issue when all maven dependencies are placed into runtime scope
+          if ( project.configurations.compile.allDependencies.findAll { dep ->
+            xmlDep.groupId.text() == dep.group && xmlDep.artifactId.text() == dep.name
+          } ) {
+            def xmlScope = xmlDep.scope[ 0 ];
+            if ( !xmlScope ) {
+              xmlScope = xmlDep.appendNode( 'scope' )
+            }
+            xmlScope.value = 'compile';
+          }
+        }
+      }
+    }
+  }
+}
+
+
+

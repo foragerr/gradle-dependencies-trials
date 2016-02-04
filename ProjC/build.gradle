@@ -1,0 +1,21 @@
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+group = 'net.foragerr.trials'
+version = '1.0'
+
+repositories{
+	mavenLocal()
+}
+
+
+publishing {
+  publications {
+    maven( MavenPublication ) {
+      from components.java
+    }
+  }
+}
+
+
+

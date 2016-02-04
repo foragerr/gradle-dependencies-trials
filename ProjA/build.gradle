@@ -1,0 +1,51 @@
+buildscript {
+    repositories {
+        jcenter {
+			url "http://jcenter.bintray.com/"
+		}
+    }
+    dependencies {
+        classpath 'org.gradle:gradle-core:2.10'
+    }
+}
+
+import org.gradle.api.artifacts.Configuration
+import static org.gradle.api.specs.Specs.SATISFIES_ALL
+
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+group = 'net.foragerr.trials'
+version = '1.0'
+
+repositories{
+	mavenLocal()
+}
+
+dependencies {
+	compile 'net.foragerr.trials:ProjB:1.0'
+}
+
+task listDeps()<<{
+	getCurrentCoordinates(project.configurations.compile)
+}
+
+
+
+public void getCurrentCoordinates(Configuration configuration) {
+	Configuration copy = configuration.copyRecursive().setTransitive(true)
+	LenientConfiguration lenient = copy.resolvedConfiguration.lenientConfiguration
+
+	Set<ResolvedDependency> resolved = lenient.getFirstLevelModuleDependencies(SATISFIES_ALL)
+	for (ResolvedDependency dependency : resolved) {
+	  println dependency.module.id
+	}
+
+}
+
+
+
+
+
+
+
